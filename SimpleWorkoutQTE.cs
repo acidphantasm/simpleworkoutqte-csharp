@@ -72,8 +72,6 @@ public class SimpleWorkoutQTE(
                 }
 
                 if (qteEvent.SuccessCoordinates.Y >= 1) qteEvent.SuccessCoordinates.Y = 1f;
-                
-                logger.Success($"{qteEvent.SuccessCoordinates.Y}");
             }
         }
 
