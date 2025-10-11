@@ -1,0 +1,10 @@
+{
+    "MusclePainTime": 43200,
+    "Level0ExpMultiplier": 2,
+    "Level10ExpMultiplier": 3,
+    "Level25ExpMultiplier": 4.5,
+    "EasyMode": false,
+    "QteSpeed": 0.5,
+    "QteSize": 2,
+    "PreventVeryDifficultQTE": true
+}
