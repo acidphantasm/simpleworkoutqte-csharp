@@ -3,5 +3,5 @@
 public record EasyMode
 {
     public bool Enable { get; set; }
-    public int NumberOfEvents { get; set; }
+    public int NumberOfReps { get; set; }
 }

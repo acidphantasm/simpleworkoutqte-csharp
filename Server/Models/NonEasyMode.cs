@@ -4,7 +4,7 @@ namespace _simpleWorkoutQTE.Models;
 
 public record NonEasyMode
 {
-    public int NumberOfEvents { get; set; }
+    public int NumberOfReps { get; set; }
     public float StartSpeed { get; set; }
     public float EndSpeed { get; set; }
     public float StartX { get; set; }

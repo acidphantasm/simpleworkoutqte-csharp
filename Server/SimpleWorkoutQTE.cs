@@ -54,7 +54,7 @@ public class SimpleWorkoutQTE(
         
         if (_modConfig.EasyMode.Enable)
         {
-            for (var i = 0; i < _modConfig.EasyMode.NumberOfEvents; i++)
+            for (var i = 0; i < _modConfig.EasyMode.NumberOfReps; i++)
             {
                 newQteData.Add(new QuickTimeEvent
                 {
@@ -87,7 +87,7 @@ public class SimpleWorkoutQTE(
             var startY = _modConfig.NonEasyMode.StartY;
             var endY = _modConfig.NonEasyMode.EndY;
 
-            var count = _modConfig.NonEasyMode.NumberOfEvents;
+            var count = _modConfig.NonEasyMode.NumberOfReps;
             var progressionType = _modConfig.NonEasyMode.ProgressionType;
             if (!Enum.IsDefined(typeof(QteProgressionType), progressionType))
             {

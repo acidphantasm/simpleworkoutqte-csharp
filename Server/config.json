@@ -2,11 +2,11 @@
     "EasyMode":
     {
         "Enable": false,
-        "NumberOfEvents": 15
+        "NumberOfReps": 15
     },
     "NonEasyMode":
     {
-        "NumberOfEvents": 15,
+        "NumberOfReps": 15,
         "StartSpeed": 1,
         "EndSpeed": 4,
         "StartX": 0.45,
