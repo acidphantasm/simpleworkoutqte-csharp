@@ -13,6 +13,9 @@
 /dataSources/
 /dataSources.local.xml
 #local files
-/obj/Debug
-/bin/
-/release/
+Server/obj/
+Server/bin/
+Server/release/
+Client/obj/
+Client/bin/
+Client/release/
