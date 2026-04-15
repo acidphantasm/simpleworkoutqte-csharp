@@ -113,7 +113,6 @@ public class SimpleWorkoutQTE(
                 var newY = Math.Max(0f, MathF.Round(Lerp(startY, endY, progress), 2));
                 var speed = MathF.Round(Lerp(startSpeed, endSpeed, progress), 2);
 
-                logger.Warning($"X{newX},Y{newY},S{speed}");
                 newQteData.Add(new QuickTimeEvent
                 {
                     EventType = QteType.ShrinkingCircle,
