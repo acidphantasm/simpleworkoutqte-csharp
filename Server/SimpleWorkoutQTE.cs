@@ -27,7 +27,7 @@ public record ModMetadata : AbstractModMetadata
     public override string License { get; init; } = "MIT";
 }
 
-[Injectable(TypePriority = OnLoadOrder.PostDBModLoader + 1)]
+[Injectable(TypePriority = OnLoadOrder.PostDBModLoader + 420)]
 public class SimpleWorkoutQTE(
     DatabaseService databaseService,
     ModHelper modHelper,
