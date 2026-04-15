@@ -18,7 +18,7 @@ public record ModMetadata : AbstractModMetadata
     public override string Name { get; init; } = "Simple Workout QTE";
     public override string Author { get; init; } = "acidphantasm";
     public override List<string>? Contributors { get; init; }
-    public override SemanticVersioning.Version Version { get; init; } = new("2.1.0");
+    public override SemanticVersioning.Version Version { get; init; } = new("2.1.1");
     public override SemanticVersioning.Range SptVersion { get; init; } = new("~4.0.0");
     public override List<string>? Incompatibilities { get; init; }
     public override Dictionary<string, SemanticVersioning.Range>? ModDependencies { get; init; }
@@ -101,15 +101,19 @@ public class SimpleWorkoutQTE(
                 var progress = progressionType switch
                 {
                     QteProgressionType.Linear => normalizedProgress,
-                    QteProgressionType.Exponential =>
-                        normalizedProgress * normalizedProgress * (3f - 2f * normalizedProgress),
+                    QteProgressionType.Exponential => MathF.Pow(normalizedProgress, 1.75f),
                     _ => normalizedProgress
                 };
 
-                var newX = Math.Max(0f, Lerp(startX, endX, progress));
-                var newY = Math.Max(0f, Lerp(startY, endY, progress));
-                var speed = Lerp(startSpeed, endSpeed, progress);
+                var xProgress = progressionType == QteProgressionType.Exponential
+                    ? MathF.Pow(MathF.Min(progress / 0.7f, 1f), 1.25f)
+                    : progress;
 
+                var newX = Math.Max(0f, MathF.Round(Lerp(startX, endX, xProgress), 2));
+                var newY = Math.Max(0f, MathF.Round(Lerp(startY, endY, progress), 2));
+                var speed = MathF.Round(Lerp(startSpeed, endSpeed, progress), 2);
+
+                logger.Warning($"X{newX},Y{newY},S{speed}");
                 newQteData.Add(new QuickTimeEvent
                 {
                     EventType = QteType.ShrinkingCircle,
