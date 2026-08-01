@@ -1,4 +1,4 @@
-﻿namespace _simpleWorkoutQTE.Models.Enums;
+﻿namespace SimpleWorkoutQTE.Models.Enums;
 
 public enum QteProgressionType
 {

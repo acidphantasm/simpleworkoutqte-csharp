@@ -4,7 +4,7 @@ using BepInEx.Logging;
 
 namespace _simpleWorkoutQTE
 {
-    [BepInPlugin("com.acidphantasm.simpleworkoutqte", "acidphantasm-simpleworkoutqte", "2.1.1")]
+    [BepInPlugin("com.acidphantasm.simpleworkoutqte", "acidphantasm-simpleworkoutqte", "2.2.0")]
     public class Plugin : BaseUnityPlugin
     {
         public static ManualLogSource LogSource;
@@ -12,8 +12,7 @@ namespace _simpleWorkoutQTE
         {
             LogSource = Logger;
 
-            new WorkoutBehaviourPatch1().Enable();
-            LogSource.LogInfo("plugin loaded!");
+            new WorkoutPatch().Enable();
         }
     }
 }

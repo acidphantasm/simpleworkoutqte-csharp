@@ -1,15 +1,15 @@
-﻿using _simpleWorkoutQTE.Models.Enums;
+﻿using SimpleWorkoutQTE.Models.Enums;
 
-namespace _simpleWorkoutQTE.Models;
+namespace SimpleWorkoutQTE.Models;
 
 public record NonEasyMode
 {
-    public int NumberOfReps { get; set; }
-    public float StartSpeed { get; set; }
-    public float EndSpeed { get; set; }
-    public float StartX { get; set; }
-    public float EndX { get; set; }
-    public float StartY { get; set; }
-    public float EndY { get; set; }
-    public QteProgressionType ProgressionType { get; set; }
+    public int NumberOfReps { get; set; } = 15;
+    public float StartSpeed { get; set; } = 1;
+    public float EndSpeed { get; set; } = 4;
+    public float StartX { get; set; } = 0.45f;
+    public float EndX { get; set; } = 0.0f;
+    public float StartY { get; set; } = 0.175f;
+    public float EndY { get; set; } = 0.07f;
+    public QteProgressionType ProgressionType { get; set; } = QteProgressionType.Exponential;
 }

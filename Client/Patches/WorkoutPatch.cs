@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using EFT;
 using EFT.Communications;
 using EFT.Hideout;
 using HarmonyLib;
@@ -8,19 +9,19 @@ using SPT.Reflection.Patching;
 
 namespace _simpleWorkoutQTE.Patches
 {
-    internal class WorkoutBehaviourPatch1 : ModulePatch
+    internal class WorkoutPatch : ModulePatch
     {
         private static readonly Random Random = new Random();
         
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(WorkoutBehaviour), nameof(WorkoutBehaviour.method_18));
+            return AccessTools.Method(typeof(WorkoutBehaviour), nameof(WorkoutBehaviour.CalculateExperience));
         }
 
         [PatchPrefix]
         private static bool PatchPrefix(WorkoutBehaviour __instance)
         {
-            var array = __instance.QteHandleData_0.Results[QteData.EQteEffectType.SingleSuccessEffect].Effects.Where(new Func<QteEffect, bool>(__instance.method_21)).ToArray<QteEffect>();
+            var array = __instance._qteData.Results[QteData.EQteEffectType.SingleSuccessEffect].Effects.Where(new Func<QteEffect, bool>(__instance.CG_CalculateExperience)).ToArray<QteEffect>();
             if (array.Length == 0)
             {
                 return true;
@@ -52,8 +53,8 @@ namespace _simpleWorkoutQTE.Patches
             
             selectedEffect ??= array[^1];
 
-            var skill = __instance.HideoutPlayerOwner_0.HideoutPlayer.Skills.GetSkill(selectedEffect.Skill);
-            var gymEffectivity = (__instance.HealthControllerClass.HasSevereMusclePainEffect() ? __instance.HealthControllerClass.GetSevereMusclePainSettings().GymEffectivity : (__instance.HealthControllerClass.HasMildMusclePainEffect() ? __instance.HealthControllerClass.GetMildMusclePainSettings().GymEffectivity : 0f));
+            var skill = __instance._playerOwner.HideoutPlayer.Skills.GetSkill(selectedEffect.Skill);
+            var gymEffectivity = (__instance._offlineHealthController.HasSevereMusclePainEffect() ? __instance._offlineHealthController.GetSevereMusclePainSettings().GymEffectivity : (__instance._offlineHealthController.HasMildMusclePainEffect() ? __instance._offlineHealthController.GetMildMusclePainSettings().GymEffectivity : 0f));
             var skillExpMultiplier = 0f;
             foreach (QteEffect.SkillExperienceMultiplierData skillExperienceMultiplierData in selectedEffect.SkillExpMultiplierData)
             {
@@ -63,13 +64,13 @@ namespace _simpleWorkoutQTE.Patches
                 }
             }
             var factor = skillExpMultiplier - skillExpMultiplier * gymEffectivity;
-            var factorValue = __instance.HideoutPlayerOwner_0.HideoutPlayer.Skills.SkillProgress.Factor(factor, true).FactorValue;
+            var factorValue = __instance._playerOwner.HideoutPlayer.Skills.SkillProgress.Factor(factor, true).FactorValue;
             var skillProgress = ((skill.Level >= 9) ? factorValue : skill.CalculateExpOnFirstLevels(factorValue));
             skill.SetCurrent(skill.Current + skillProgress, true);
             skill.AddPointsEarnedForWorkout(skillProgress);
-            NotificationManagerClass.DisplayNotification(new GClass2551(string.Format("Skill '{0}' increased by {1}".Localized(null), skill.Id.ToString().Localized(null), Math.Round((double)factorValue, 2)), ENotificationDurationType.Default, ENotificationIconType.Default, null));
+            NotificationManager.DisplayNotification(new CustomNotification(string.Format("Skill '{0}' increased by {1}".Localized(null), skill.Id.ToString().Localized(null), Math.Round((double)factorValue, 2)), ENotificationDurationType.Default, ENotificationIconType.Default, null));
 
-            Plugin.LogSource.LogDebug($"Skill: {selectedEffect.Skill} - Weight: {selectedEffect.Weight} - Points Gained: {skillProgress}");
+            Plugin.LogSource.LogInfo($"Skill: {selectedEffect.Skill} - Weight: {selectedEffect.Weight} - Points Gained: {skillProgress} | Length: {array.Length}");
             return false;
         }
     }

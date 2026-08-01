@@ -1,42 +1,27 @@
 using System.Reflection;
-using _simpleWorkoutQTE.Models;
-using _simpleWorkoutQTE.Models.Enums;
+using SimpleWorkoutQTE.Models;
+using SimpleWorkoutQTE.Models.Enums;
+using SPTarkov.Common.Models.Logging;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.DI;
-using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Helpers.Server;
 using SPTarkov.Server.Core.Models.Eft.Hideout;
+using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Enums.Hideout;
-using SPTarkov.Server.Core.Models.Spt.Mod;
-using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Services;
+using SPTarkov.Server.Core.Models.Spt.Tables;
 
-namespace _simpleWorkoutQTE;
+namespace SimpleWorkoutQTE;
 
-public record ModMetadata : AbstractModMetadata
-{
-    public override string ModGuid { get; init; } = "com.acidphantasm.simpleworkoutqte";
-    public override string Name { get; init; } = "Simple Workout QTE";
-    public override string Author { get; init; } = "acidphantasm";
-    public override List<string>? Contributors { get; init; }
-    public override SemanticVersioning.Version Version { get; init; } = new("2.1.1");
-    public override SemanticVersioning.Range SptVersion { get; init; } = new("~4.0.0");
-    public override List<string>? Incompatibilities { get; init; }
-    public override Dictionary<string, SemanticVersioning.Range>? ModDependencies { get; init; }
-    public override string? Url { get; init; }
-    public override bool? IsBundleMod { get; init; }
-    public override string License { get; init; } = "MIT";
-}
-
-[Injectable(TypePriority = OnLoadOrder.PostDBModLoader + 420)]
-public class SimpleWorkoutQTE(
-    DatabaseService databaseService,
+[Injectable(TypePriority = OnLoadOrder.Preload + 420)]
+public class QteOnLoad(
+    HideoutTable hideoutTable,
     ModHelper modHelper,
-    ISptLogger<SimpleWorkoutQTE> logger)
+    ISptLogger<QteOnLoad> logger)
     : IOnLoad
 {
     private ModConfig _modConfig = null!;
     
-    public Task OnLoad()
+    public Task OnLoadAsync(CancellationToken cancellationToken)
     { 
         var pathToMod = modHelper.GetAbsolutePathToModFolder(Assembly.GetExecutingAssembly());
         _modConfig = modHelper.GetJsonDataFromFile<ModConfig>(pathToMod, "config.json");
@@ -48,7 +33,7 @@ public class SimpleWorkoutQTE(
     
     private void EditQte()
     {
-        var hideout = databaseService.GetHideout();
+        var hideout = hideoutTable;
         var qteData = hideout.Qte[0];
         var newQteData = new List<QuickTimeEvent>();
         
@@ -144,7 +129,7 @@ public class SimpleWorkoutQTE(
 
     private void EditWorkout()
     {
-        var results = databaseService.GetHideout().Qte[0].Results;
+        var results = hideoutTable.Qte[0].Results;
         if (results is null) 
             return;
         
@@ -178,11 +163,17 @@ public class SimpleWorkoutQTE(
                 if (weight <= 0) 
                     continue;
                 
+                if (!Enum.TryParse<SkillTypes>(skillName, ignoreCase: true, out var validSkillName))
+                {
+                    logger.Error($"[SimpleWorkoutQTE] '{skillName}' in SkillRewardWeights is not a valid skill type - skipping");
+                    continue;
+                }
+                
                 var effect = new QteEffect
                 {
                     Weight = weight,
                     Result = QteResultType.None,
-                    SkillId = skillName,
+                    SkillId = validSkillName,
                     LevelMultipliers =
                     [
                         new SkillLevelMultiplier
