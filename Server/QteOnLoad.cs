@@ -171,7 +171,7 @@ public class QteOnLoad(
                 
                 var effect = new QteEffect
                 {
-                    Weight = weight,
+                    Weight = 1,
                     Result = QteResultType.None,
                     SkillId = validSkillName,
                     LevelMultipliers =
