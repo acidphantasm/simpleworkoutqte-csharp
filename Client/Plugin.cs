@@ -3,7 +3,7 @@ using BepInEx.Logging;
 
 namespace _simpleWorkoutQTE
 {
-    [BepInPlugin("com.acidphantasm.simpleworkoutqte", "acidphantasm-simpleworkoutqte", "2.2.1")]
+    [BepInPlugin("com.acidphantasm.simpleworkoutqte", "acidphantasm-simpleworkoutqte", "2.2.2")]
     public class Plugin : BaseUnityPlugin
     {
         internal void Awake()

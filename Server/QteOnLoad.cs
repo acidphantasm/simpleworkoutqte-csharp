@@ -1,10 +1,8 @@
-using System.Reflection;
 using SimpleWorkoutQTE.Models;
 using SimpleWorkoutQTE.Models.Enums;
 using SPTarkov.Common.Models.Logging;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.DI;
-using SPTarkov.Server.Core.Helpers.Server;
 using SPTarkov.Server.Core.Models.Eft.Hideout;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Enums.Hideout;
@@ -15,20 +13,23 @@ namespace SimpleWorkoutQTE;
 [Injectable(TypePriority = OnLoadOrder.Preload + 420)]
 public class QteOnLoad(
     HideoutTable hideoutTable,
-    ModHelper modHelper,
-    ISptLogger<QteOnLoad> logger)
+    ISptLogger<QteOnLoad> logger,
+    ModConfig modConfig)
     : IOnLoad
 {
-    private ModConfig _modConfig = null!;
-    
     public Task OnLoadAsync(CancellationToken cancellationToken)
     { 
-        var pathToMod = modHelper.GetAbsolutePathToModFolder(Assembly.GetExecutingAssembly());
-        _modConfig = modHelper.GetJsonDataFromFile<ModConfig>(pathToMod, "config.json");
-        
         EditQte();
         EditWorkout();
         return Task.CompletedTask;
+    }
+
+    public ValueTask ReapplyConfig(object model, CancellationToken cancellationToken)
+    {
+        EditQte();
+        EditWorkout();
+        
+        return new ValueTask(Task.CompletedTask);
     }
     
     private void EditQte()
@@ -37,9 +38,9 @@ public class QteOnLoad(
         var qteData = hideout.Qte[0];
         var newQteData = new List<QuickTimeEvent>();
         
-        if (_modConfig.EasyMode.Enable)
+        if (modConfig.EasyMode.Enable)
         {
-            for (var i = 0; i < _modConfig.EasyMode.NumberOfReps; i++)
+            for (var i = 0; i < modConfig.EasyMode.NumberOfReps; i++)
             {
                 newQteData.Add(new QuickTimeEvent
                 {
@@ -63,17 +64,17 @@ public class QteOnLoad(
         }
         else
         {
-            var startSpeed = _modConfig.NonEasyMode.StartSpeed;
-            var endSpeed = _modConfig.NonEasyMode.EndSpeed;
+            var startSpeed = modConfig.NonEasyMode.StartSpeed;
+            var endSpeed = modConfig.NonEasyMode.EndSpeed;
 
-            var startX = _modConfig.NonEasyMode.StartX;
-            var endX = _modConfig.NonEasyMode.EndX;
+            var startX = modConfig.NonEasyMode.StartX;
+            var endX = modConfig.NonEasyMode.EndX;
 
-            var startY = _modConfig.NonEasyMode.StartY;
-            var endY = _modConfig.NonEasyMode.EndY;
+            var startY = modConfig.NonEasyMode.StartY;
+            var endY = modConfig.NonEasyMode.EndY;
 
-            var count = _modConfig.NonEasyMode.NumberOfReps;
-            var progressionType = _modConfig.NonEasyMode.ProgressionType;
+            var count = modConfig.NonEasyMode.NumberOfReps;
+            var progressionType = modConfig.NonEasyMode.ProgressionType;
             if (!Enum.IsDefined(typeof(QteProgressionType), progressionType))
             {
                 logger.Warning($"[SimpleWorkoutQTE] ProgressionType is not valid. Must be Linear or Exponential. Defaulting to Linear.");
@@ -136,29 +137,29 @@ public class QteOnLoad(
         var finishEffect = results.First(x => x.Key == QteEffectType.finishEffect).Value;
         if (finishEffect.RewardEffects != null)
         {
-            finishEffect.RewardEffects[0].Time = _modConfig.MusclePainTime;
+            finishEffect.RewardEffects[0].Time = modConfig.MusclePainTime;
         }
         
         var singleFailEffect = results.First(x => x.Key == QteEffectType.singleFailEffect).Value;
         if (singleFailEffect.RewardEffects != null)
         {
-            singleFailEffect.Energy = _modConfig.FailureEnergyCost;
-            singleFailEffect.Hydration = _modConfig.FailureHydrationCost;
+            singleFailEffect.Energy = modConfig.FailureEnergyCost;
+            singleFailEffect.Hydration = modConfig.FailureHydrationCost;
         }
         
         var singleSuccessEffect = results.First(x => x.Key == QteEffectType.singleSuccessEffect).Value;
         if (singleSuccessEffect.RewardEffects != null)
         {
-            singleSuccessEffect.Energy = _modConfig.SuccessEnergyCost;
-            singleSuccessEffect.Hydration = _modConfig.SuccessHydrationCost;
+            singleSuccessEffect.Energy = modConfig.SuccessEnergyCost;
+            singleSuccessEffect.Hydration = modConfig.SuccessHydrationCost;
 
-            if (_modConfig.SkillRewardWeights.Count == 0)
+            if (modConfig.SkillRewardWeights.Count == 0)
             {
                 logger.Error($"[SimpleWorkoutQTE] SkillReward config cannot be empty - ignoring config value for this section");
                 return;
             }
             singleSuccessEffect.RewardEffects = new List<QteEffect>();
-            foreach (var (skillName, weight) in _modConfig.SkillRewardWeights)
+            foreach (var (skillName, weight) in modConfig.SkillRewardWeights)
             {
                 if (weight <= 0) 
                     continue;
@@ -179,27 +180,27 @@ public class QteOnLoad(
                         new SkillLevelMultiplier
                         {
                             Level = 0,
-                            MultiplierValue = _modConfig.SkillLevel0ExpMultiplier
+                            MultiplierValue = modConfig.SkillLevel0ExpMultiplier
                         },
                         new SkillLevelMultiplier
                         {
                             Level = 10,
-                            MultiplierValue = _modConfig.SkillLevel10ExpMultiplier
+                            MultiplierValue = modConfig.SkillLevel10ExpMultiplier
                         },
                         new SkillLevelMultiplier
                         {
                             Level = 20,
-                            MultiplierValue = _modConfig.SkillLevel20ExpMultiplier
+                            MultiplierValue = modConfig.SkillLevel20ExpMultiplier
                         },
                         new SkillLevelMultiplier
                         {
                             Level = 30,
-                            MultiplierValue = _modConfig.SkillLevel30ExpMultiplier
+                            MultiplierValue = modConfig.SkillLevel30ExpMultiplier
                         },
                         new SkillLevelMultiplier
                         {
                             Level = 40,
-                            MultiplierValue = _modConfig.SkillLevel40ExpMultiplier
+                            MultiplierValue = modConfig.SkillLevel40ExpMultiplier
                         }
                     ],
                     Type = QteRewardType.Skill

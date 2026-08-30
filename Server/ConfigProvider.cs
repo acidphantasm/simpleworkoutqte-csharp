@@ -6,7 +6,7 @@ using SPTarkov.Server.Web.Services;
 namespace SimpleWorkoutQTE;
 
 [Injectable(InjectionType.Singleton)]
-public class ConfigProvider(ModConfig config) : IConfigEditorConfigProvider
+public class ConfigProvider(ModConfig config, QteOnLoad onLoad) : IConfigEditorConfigProvider
 {
     public IEnumerable<ConfigEditorConfigRegistration> GetConfigs()
     {
@@ -15,6 +15,9 @@ public class ConfigProvider(ModConfig config) : IConfigEditorConfigProvider
             "SimpleWorkoutQTE",
             config,
             Path.Combine("user", "mods", "acidphantasm-simpleworkoutqte", "config.json")
-        );
+            ) with
+            {
+                OnAppliedToRuntimeAsync = onLoad.ReapplyConfig
+            };
     }
 }
